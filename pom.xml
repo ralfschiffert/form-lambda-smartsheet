@@ -32,6 +32,14 @@
             </goals>
           </execution>
         </executions>
+	<configuration>
+	<systemPropertyVariables>
+			<SMARTSHEETACCESSTOKEN>${SMARTSHEETACCESSTOKEN}</SMARTSHEETACCESSTOKEN>
+			<SMARTSHEETSHEETID>${SMARTSHEETSHEETID}</SMARTSHEETSHEETID>
+			<TROPOUSERNAME>${TROPOUSERNAME}</TROPOUSERNAME>
+			<TROPOPASSWORD>${TROPOPASSWORD}</TROPOPASSWORD>
+	</systemPropertyVariables>
+	</configuration>
       </plugin>
     </plugins>
   </build>
