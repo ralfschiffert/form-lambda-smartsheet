@@ -40,10 +40,10 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 public class LambdaFunctionHandler implements RequestHandler<Map<String, String>, String> {
 
 
-	private static final String SMARTSHEETACCESSTOKEN = System.getProperty("SMARTSHEETACCESSTOKEN");
-	private static final String SMARTSHEETSHEETID = System.getProperty("SMARTSHEETSHEETID");
-	private static final String TROPOUSERNAME= System.getProperty("TROPOUSERNAME");
-	private static final String TROPOPASSWORD = System.getProperty("TROPOPASSWORD");
+	private static final String SMARTSHEETACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+	private static final String SMARTSHEETSHEETID = System.getenv("SMARTSHEETSHEETID");
+	private static final String TROPOUSERNAME= System.getenv("TROPOUSERNAME");
+	private static final String TROPOPASSWORD = System.getenv("TROPOPASSWORD");
 
 
 

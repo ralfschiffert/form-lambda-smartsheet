@@ -20,8 +20,8 @@ import com.smartsheet.api.models.Sheet;
 
 public class SingleSmartSheetTest {
 
-	public static String SMARTSHEETACCESSTOKEN = System.getProperty("SMARTSHEETACCESSTOKEN");
-	public static String SMARTSHEETSHEETID = System.getProperty("SMARTSHEETSHEETID");
+	public static String SMARTSHEETACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+	public static String SMARTSHEETSHEETID = System.getenv("SMARTSHEETSHEETID");
 	private static Context ctx = null;
 	private static LambdaLogger ll = null;
 

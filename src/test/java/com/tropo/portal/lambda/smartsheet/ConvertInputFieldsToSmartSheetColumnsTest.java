@@ -32,11 +32,11 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 
 
 	@BeforeClass
-	public static void getProperty() {
-		ConvertInputFieldsToSmartSheetColumnsTest.ACCESSTOKEN = System.getProperty("SMARTSHEETACCESSTOKEN");
+	public static void getenv() {
+		ConvertInputFieldsToSmartSheetColumnsTest.ACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
 		System.out.println(ACCESSTOKEN);
 
-		ConvertInputFieldsToSmartSheetColumnsTest.SHEETID = System.getProperty("SMARTSHEETSHEETID");
+		ConvertInputFieldsToSmartSheetColumnsTest.SHEETID = System.getenv("SMARTSHEETSHEETID");
 		System.out.println(SHEETID);
 	}
 
