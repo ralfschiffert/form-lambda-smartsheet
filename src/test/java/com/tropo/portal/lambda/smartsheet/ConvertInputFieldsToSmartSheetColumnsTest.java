@@ -14,13 +14,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 
 public class ConvertInputFieldsToSmartSheetColumnsTest {
-	
+
 	private static String ACCESSTOKEN = null;
 	private static String SHEETID = null;
-	
-	
+
+
 	private String decode(String s) {
-		
+
 		String converted ="";
 		try {
 			converted = java.net.URLDecoder.decode(s, "UTF-8");
@@ -29,23 +29,23 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 		}
 		return converted;
 	}
-	
-	
+
+
 	@BeforeClass
-	public static void getEnv() {
-		ConvertInputFieldsToSmartSheetColumnsTest.ACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+	public static void getProperty() {
+		ConvertInputFieldsToSmartSheetColumnsTest.ACCESSTOKEN = System.getProperty("SMARTSHEETACCESSTOKEN");
 		System.out.println(ACCESSTOKEN);
-	
-		ConvertInputFieldsToSmartSheetColumnsTest.SHEETID = System.getenv("SMARTSHEETSHEETID");
+
+		ConvertInputFieldsToSmartSheetColumnsTest.SHEETID = System.getProperty("SMARTSHEETSHEETID");
 		System.out.println(SHEETID);
 	}
 
 	@Test
-	public void convertFormFieldsToSmartSheetColumnsTest() {	
-		
+	public void convertFormFieldsToSmartSheetColumnsTest() {
+
 		TestContext ctx = new TestContext();
 		 LambdaLogger ll = ctx.getLogger();
-	
+
 		assertTrue("couldn't map field correctly " + "URL", ConvertInputFieldsToSmartSheetColumns.getMappedField("URL",ll).equals("Company Website"));
 		assertTrue("couldn't map field correctly" + "title", ConvertInputFieldsToSmartSheetColumns.getMappedField("title",ll).equals("Person Job Title"));
 		assertTrue("couldn't map field correctly" + "phone", ConvertInputFieldsToSmartSheetColumns.getMappedField("phone",ll).equals("Person Phone"));
@@ -67,9 +67,9 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 		assertTrue("couldn't map field correctly" + "00N6100000HSuwM", ConvertInputFieldsToSmartSheetColumns.getMappedField("00N6100000HSuwM",ll).equals("Checkbox Developer Account"));
 		assertTrue("couldn't map field correctly" + "00N6100000HSuwN", ConvertInputFieldsToSmartSheetColumns.getMappedField("00N6100000HSuwN",ll).equals("Checkbox Spark Bot"));
 	}
-	
-	
-	
+
+
+
 	private Context createContext() {
 		// TODO Auto-generated method stub
 		return null;
@@ -77,19 +77,19 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 
 
 	@Test
-	public void testThatFormFieldsMapToColumnsInSmartSheet() {	
-	
+	public void testThatFormFieldsMapToColumnsInSmartSheet() {
+
 		TestContext context = new TestContext();
 		// TODO: customize your context here if needed.
 		context.setFunctionName("Your testThatFormFieldsMapToColumnsInSmartSheet Name");
 		LambdaLogger ll = context.getLogger();
-		
+
 		SingleSmartSheet sss = new SingleSmartSheet(context);
 		sss.init(ACCESSTOKEN, SHEETID); // column mapping is part of the init
-		
+
 		assertFalse("column name check doesn't work", sss.doesColumnExist("ESELSOHR").isPresent());
 		assertTrue("column name check doesn't work", sss.doesColumnExist("Company Name").isPresent());
-		
+
 		// all these should exist in the sheet
 		assertTrue("column name check doesn't work", sss.doesColumnExist(ConvertInputFieldsToSmartSheetColumns.getMappedField("URL",ll)).isPresent());
 		assertTrue("column name check doesn't work", sss.doesColumnExist(ConvertInputFieldsToSmartSheetColumns.getMappedField("title",ll)).isPresent());
@@ -113,17 +113,17 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 		assertTrue("column name check doesn't work", sss.doesColumnExist(ConvertInputFieldsToSmartSheetColumns.getMappedField("00N6100000HSuwN",ll)).isPresent());
 		assertTrue("column name check doesn't work", sss.doesColumnExist(ConvertInputFieldsToSmartSheetColumns.getMappedField("URL",ll)).isPresent());
 	}
-	
-	
+
+
 	@Test
 	public void conversionOfMapFromInputFieldsToSmartSheetFieldsTest() throws UnsupportedEncodingException {
-	
+
 		TestContext context = new TestContext();
 		// TODO: customize your context here if needed.
 		context.setFunctionName("Your Function Name");
 		LambdaLogger ll = context.getLogger();
-		
-		
+
+
 		Map<String, String> m = new HashMap<String, String>();
 		m.put("oid","00D61000000dO6M");
 		m.put("retURL","https%3A%2F%2Fwww.sssssss.com%2Fthankyou");
@@ -145,20 +145,20 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 		m.put("00N6100000HSuwM","1");
 		m.put("00N6100000HSuwQ","dddeejejJJKKJKJ");
 		m.put("00N6100000BT0HY","This+is+a+description+of+my+project");
-		
-		System.out.println(m); 
-		
+
+		System.out.println(m);
+
 		m = m.entrySet().parallelStream().filter( (e) -> ConvertInputFieldsToSmartSheetColumns.getMappedField(e.getKey(),ll)!=null).collect(
 				Collectors.toMap (
 						(e) -> ConvertInputFieldsToSmartSheetColumns.getMappedField(e.getKey(),ll),
 						(e)-> decode(e.getValue())
 						));
-		
+
 		System.out.println(m);
-		
+
 	}
-	
-	
-	
+
+
+
 
 }

@@ -21,6 +21,11 @@ public class CheckTropoUsernameTest {
 		context.setFunctionName("SmartSheetFunctionJunitTest");
 		ll =context.getLogger();
 		
+		TROPOUSERNAME =System.getProperty("TROPOUSERNAME");
+		TROPOPASSWORD = System.getProperty("TROPOPASSWORD");
+
+		
+		
 		TROPOUSERNAME =System.getenv("TROPOUSERNAME");
 		TROPOPASSWORD = System.getenv("TROPOPASSWORD");
 		

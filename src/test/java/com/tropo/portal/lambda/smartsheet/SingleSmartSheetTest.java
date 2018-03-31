@@ -20,8 +20,8 @@ import com.smartsheet.api.models.Sheet;
 
 public class SingleSmartSheetTest {
 
-	public static String SMARTSHEETACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
-	public static String SMARTSHEETSHEETID = System.getenv("SMARTSHEETSHEETID");
+	public static String SMARTSHEETACCESSTOKEN = System.getProperty("SMARTSHEETACCESSTOKEN");
+	public static String SMARTSHEETSHEETID = System.getProperty("SMARTSHEETSHEETID");
 	private static Context ctx = null;
 	private static LambdaLogger ll = null;
 
@@ -64,7 +64,7 @@ public class SingleSmartSheetTest {
 		return data;
 	}
 
-	
+
 	@Test
 	public void ATestSuccessfulInitOfSmartSheet() {
 		// the init wants an AWS context for logging
@@ -72,15 +72,15 @@ public class SingleSmartSheetTest {
 		// this should not throw an exception
 		assertNotNull("The init with the right credentials didn't work",sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID));
 	}
-	
-	
+
+
 	@Test
 	public void ChainingOfMethodsToInitTest() {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		// this should not throw an exception
 		assertNotNull("The init with the right credentials didn't work",sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID).doesPrimaryColumnExist());
-		
+
 	}
 
 	@Test(expected=IllegalStateException.class )
@@ -95,7 +95,7 @@ public class SingleSmartSheetTest {
 	public void BUnsuccessfulInitOfSmartSheeDueToWrongAccessToken() {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		assertNotNull("couldn't create a SingleSmartSheet class",sss);	
+		assertNotNull("couldn't create a SingleSmartSheet class",sss);
 		sss.init(SMARTSHEETACCESSTOKEN+"o", SMARTSHEETSHEETID);
 	}
 
@@ -104,7 +104,7 @@ public class SingleSmartSheetTest {
 	public void CUnsuccessfulInitOfSmartSheetDueEmptyAccessToken() {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		assertNotNull("couldn't create a SingleSmartSheet class",sss);	
+		assertNotNull("couldn't create a SingleSmartSheet class",sss);
 		// this should throw the exception
 		sss.init(null, SMARTSHEETSHEETID);
 	}
@@ -132,7 +132,7 @@ public class SingleSmartSheetTest {
 		Optional<Sheet> s = (Optional<Sheet>) method.invoke(sss);
 		assertTrue("failed to open and return sheet after successful init", s.isPresent());
 	}
-	
+
 	@Test
 	public void getCellValueByColumnName() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
@@ -154,17 +154,17 @@ public class SingleSmartSheetTest {
 			assertTrue("issue with the reflection access", false);
 		}
 		assertTrue("could not empty the cache container", 1==sss.clearRowCacheContainer());
-		
+
 	}
 
-	
+
 	@Test
 	public void GSuccessfuRetrievalOfRowFromSheetAndCellFromRow() throws Exception {
 		final int rowNb = 1;
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
-		
+
 		Optional<Sheet> os = sss.getSheetRepresentation();
 		assertTrue("failed to open and return sheet after init",os.isPresent());
 
@@ -204,7 +204,7 @@ public class SingleSmartSheetTest {
 		// l.stream().map( e -> e.getDisplayValue().matches("Value [ABC]"));
 		for ( Cell cell : l ) {
 			String tmp = (String) cell.getValue();
-			if (tmp.matches("Value [ABC]")) { 
+			if (tmp.matches("Value [ABC]")) {
 				++found;
 			}
 		}
@@ -220,20 +220,20 @@ public class SingleSmartSheetTest {
 		Row r3 =  sss.readyRowForInsertion(testData(true)).get();
 		assertNotNull("could NOT build row despite having a unique primary key", r2);
 		assertNotNull("could NOT build row despite having a unique primary key", r3);
-		assertTrue("prepped 2 rows for insertion but didn't receive 2 rows back", sss.getNofRowsReadyToInsert()==2);	
+		assertTrue("prepped 2 rows for insertion but didn't receive 2 rows back", sss.getNofRowsReadyToInsert()==2);
 		// let's now insert the rows
 		int previousRowCount = sss.getNofRowsInSmartSheet();
 		assertTrue("could not insert the two prepped rows", 2==sss.insertRowOrRows());
 		assertTrue("current row count is not 2 more than previous row count", sss.getNofRowsInSmartSheet()-2==previousRowCount);
 		assertTrue("deletion of last inserted rows failed", 2==sss.deleteLastInserted());
 	}
-	
-	
+
+
 	@Test
 	public void KRedundantPrimaryKeyDetectionTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx, true);
 		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
-		
+
 		int previousRowCount = sss.getNofRowsInSmartSheet();
 		Map<String, String> data = testData(true);
 		Row r1 = sss.readyRowForInsertion(data).get();
@@ -244,27 +244,27 @@ public class SingleSmartSheetTest {
 		assertTrue("Could insert redundant row",  !r2.isPresent() );
 		assertTrue("could not delete the last inserted row", 1==sss.deleteLastInserted());
 		sss.clearRowCacheContainer();
-		
+
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void JFindPrimaryKeyTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
-		
+
 		final String existingKey = "hangchneg@cisco.com";
 		final String nonExistentKey = UUID.randomUUID().toString();
 		assertTrue("primary key test for key " + existingKey, sss.primaryKeyUsed(existingKey));
 		assertFalse("primary key test for key " + nonExistentKey, sss.primaryKeyUsed(nonExistentKey));
 	}
-	
-	
+
+
 	@Test
 	public void initCheckTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		
+
 		// Get the private field
 		try {
 		final Field tokenField = SingleSmartSheet.class.getDeclaredField("accessToken");
@@ -272,8 +272,8 @@ public class SingleSmartSheetTest {
 		// Allow modification on the field
 		tokenField.setAccessible(true);
 		sheetIdField.setAccessible(true);
-		
-		
+
+
 		// Return the Obect corresponding to the field
 		tokenField.set(sss, SMARTSHEETACCESSTOKEN);
 		sheetIdField.set(sss, Long.parseLong(SMARTSHEETSHEETID));
@@ -281,30 +281,30 @@ public class SingleSmartSheetTest {
 		catch ( Exception e ) {
 			assertTrue("our reflection mechanism didn't work", false);
 		}
-	
-		
+
+
 		assertTrue("This should work since we call the init under the hood", sss.getSheetRepresentation().isPresent());
 	}
-	
-	
+
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testPreconditionInInit() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		sss.init(SMARTSHEETACCESSTOKEN, null);
-		
+
 	}
-	
-	
+
+
 	@Test
 	public void KCleanupRoutineTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
-		
+
 		final int nofRows = sss.getNofRowsInSmartSheet();
 	    Optional<Row> rowToInsert =  sss.readyRowForInsertion(testData(true));
 		assertTrue("Could not create a row from the testData", rowToInsert.isPresent());
 		assertTrue("Could not insert testrow into smartsheet", 1==sss.insertRowOrRows());
-		
+
         // now let's clear our row again
 		assertTrue("could not delete 1 row", 1==sss.deleteLastInserted());
 		assertFalse("number of rows in smartsheet changed", nofRows != sss.getNofRowsInSmartSheet());
