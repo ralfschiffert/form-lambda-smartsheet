@@ -20,10 +20,10 @@ import com.smartsheet.api.models.Sheet;
 
 public class SingleSmartSheetTest {
 
-	public static String ACCESSTOKEN = "shdshhjdhdjdhj";
-	public static String SHEETID = "sjjsjsjksjksjksjsjks";
-	private static LambdaLogger ll = null;
+	public static String SMARTSHEETACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+	public static String SMARTSHEETSHEETID = System.getenv("SMARTSHEETSHEETID");
 	private static Context ctx = null;
+	private static LambdaLogger ll = null;
 
 	@BeforeClass
 	public static void createContext() {
@@ -49,16 +49,16 @@ public class SingleSmartSheetTest {
 		data.put("Company Industry", "Networking2");
 		data.put("Company Existing ISV", "no");
 		data.put("Solution Description", "This is my solution description");
-		data.put("Solution URL", "http://www.mysiolutionurl.com/phase.html");
+		data.put("Solution URL", "http://www.mysolutionurl.com/phase.html");
 		data.put("Person Salutation", " Dr.");
-		data.put("Person Firstname", "sss");
-		data.put("Person Lastname", "dkdjkdkjdjkd");
-		data.put("Person Job Title", "Chief Surgeon");
-		data.put("Person Email", "sjksjkjsjs@sjsjjsjsjksjks.com");
+		data.put("Person Firstname", "Agent");
+		data.put("Person Lastname", "K");
+		data.put("Person Job Title", "Man In Black");
+		data.put("Person Email", "agentk@mib.movie");
 		data.put("Person Phone", "(650)245-9999");
 		data.put("Person Country", "U.S.A");
-		data.put("Desired Tropo Username", "My  Username");
-		data.put("Spark Developer Account", "kjsjsjkskjskj@lijsjsjskj.com");
+		data.put("Desired Tropo Username", "AgentKRocks");
+		data.put("Spark Developer Account", "agentk@mib.com");
 		data.put("Tropo Developer Account", "511511511");
 
 		return data;
@@ -70,7 +70,7 @@ public class SingleSmartSheetTest {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		// this should not throw an exception
-		assertNotNull("The init with the right credentials didn't work",sss.init(ACCESSTOKEN, SHEETID));
+		assertNotNull("The init with the right credentials didn't work",sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID));
 	}
 	
 	
@@ -79,7 +79,7 @@ public class SingleSmartSheetTest {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		// this should not throw an exception
-		assertNotNull("The init with the right credentials didn't work",sss.init(ACCESSTOKEN, SHEETID).doesPrimaryColumnExist());
+		assertNotNull("The init with the right credentials didn't work",sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID).doesPrimaryColumnExist());
 		
 	}
 
@@ -88,7 +88,7 @@ public class SingleSmartSheetTest {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		// this should not throw an exception
-		assertNotNull("This sheet should not be existing",sss.init(ACCESSTOKEN, SHEETID+"0"));
+		assertNotNull("This sheet should not be existing",sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID+"0"));
 	}
 
 	@Test (expected=IllegalStateException.class )
@@ -96,7 +96,7 @@ public class SingleSmartSheetTest {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		assertNotNull("couldn't create a SingleSmartSheet class",sss);	
-		sss.init(ACCESSTOKEN+"o", SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN+"o", SMARTSHEETSHEETID);
 	}
 
 
@@ -106,7 +106,7 @@ public class SingleSmartSheetTest {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
 		assertNotNull("couldn't create a SingleSmartSheet class",sss);	
 		// this should throw the exception
-		sss.init(null, SHEETID);
+		sss.init(null, SMARTSHEETSHEETID);
 	}
 
 
@@ -125,7 +125,7 @@ public class SingleSmartSheetTest {
 	public void ESuccessfulReopeningOfSheet() throws Exception {
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		// method is private, so we need to do some trickery
 		Method method = sss.getClass().getDeclaredMethod("openOrReloadSheet");
 		method.setAccessible(true);
@@ -136,7 +136,7 @@ public class SingleSmartSheetTest {
 	@Test
 	public void getCellValueByColumnName() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		Optional<Sheet> os = sss.getSheetRepresentation();
 		assertTrue("failed to open and return sheet after init",os.isPresent());
 
@@ -146,9 +146,9 @@ public class SingleSmartSheetTest {
 		try {
 			Method getCellMethod = sss.getClass().getDeclaredMethod("getCellValueByColumnName",Row.class,String.class);
 			getCellMethod.setAccessible(true);
-			Optional<Cell> c =  (Optional<Cell>)getCellMethod.invoke(sss, r, "Person Lastname");
-			assertTrue("couldn't get the Person Lastname cell from the test data set", c.isPresent());
-			assertTrue("Person Lastname contained the wrong value", "Schiffert".equals(c.get()));
+			Optional<String> s =  (Optional<String>)getCellMethod.invoke(sss, r, "Person Lastname");
+			assertTrue("couldn't get the Person Lastname cell from the test data set", s.isPresent());
+			assertTrue("Person Lastname contained the wrong value", "K".equals(s.get()));
 		}
 		catch ( Exception e) {
 			assertTrue("issue with the reflection access", false);
@@ -163,7 +163,7 @@ public class SingleSmartSheetTest {
 		final int rowNb = 1;
 		// the init wants an AWS context for logging
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		
 		Optional<Sheet> os = sss.getSheetRepresentation();
 		assertTrue("failed to open and return sheet after init",os.isPresent());
@@ -189,7 +189,7 @@ public class SingleSmartSheetTest {
 		data.put("Tropo Developer Account", "Value C");
 
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		Method buildCellListMethod = sss.getClass().getDeclaredMethod("buildListOfCellsFromDataMap", Map.class);
 		assertNotNull("couldn't find method buildListOfCellsFromDataMap in class", buildCellListMethod);
 		buildCellListMethod.setAccessible(true);
@@ -214,7 +214,7 @@ public class SingleSmartSheetTest {
 	@Test
 	public void ITestRowPreparationAndInsertion() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 
 		Row r2 =  sss.readyRowForInsertion(testData(true)).get();
 		Row r3 =  sss.readyRowForInsertion(testData(true)).get();
@@ -232,7 +232,7 @@ public class SingleSmartSheetTest {
 	@Test
 	public void KRedundantPrimaryKeyDetectionTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx, true);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		
 		int previousRowCount = sss.getNofRowsInSmartSheet();
 		Map<String, String> data = testData(true);
@@ -252,7 +252,7 @@ public class SingleSmartSheetTest {
 	@Test
 	public void JFindPrimaryKeyTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		
 		final String existingKey = "hangchneg@cisco.com";
 		final String nonExistentKey = UUID.randomUUID().toString();
@@ -275,8 +275,8 @@ public class SingleSmartSheetTest {
 		
 		
 		// Return the Obect corresponding to the field
-		tokenField.set(sss, ACCESSTOKEN);
-		sheetIdField.set(sss, Long.parseLong(SHEETID));
+		tokenField.set(sss, SMARTSHEETACCESSTOKEN);
+		sheetIdField.set(sss, Long.parseLong(SMARTSHEETSHEETID));
 		}
 		catch ( Exception e ) {
 			assertTrue("our reflection mechanism didn't work", false);
@@ -290,7 +290,7 @@ public class SingleSmartSheetTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testPreconditionInInit() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, null);
+		sss.init(SMARTSHEETACCESSTOKEN, null);
 		
 	}
 	
@@ -298,7 +298,7 @@ public class SingleSmartSheetTest {
 	@Test
 	public void KCleanupRoutineTest() {
 		SingleSmartSheet sss = new SingleSmartSheet(ctx);
-		sss.init(ACCESSTOKEN, SHEETID);
+		sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID);
 		
 		final int nofRows = sss.getNofRowsInSmartSheet();
 	    Optional<Row> rowToInsert =  sss.readyRowForInsertion(testData(true));

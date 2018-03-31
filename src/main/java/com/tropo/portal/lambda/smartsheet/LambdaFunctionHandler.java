@@ -40,10 +40,10 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 public class LambdaFunctionHandler implements RequestHandler<Map<String, String>, String> {
 	
 	
-	private static final String SMARTSHEETACCESSTOKEN = "XXXXX";
-	private static final String SMARTSHEETSHEETID = "YYYYY";
-	private static final String TROPOUSERNAMEFORAPIREQUEST = "SJKKSKJJKSKKSJ";
-	private static final String TROPOPASSWORDFORAPIREQUEST = "KJSKSKSKSLKKSL";
+	private static final String SMARTSHEETACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+	private static final String SMARTSHEETSHEETID = System.getenv("SMARTSHEETSHEETID");
+	private static final String TROPOUSERNAME= System.getenv("TROPOUSERNAME");
+	private static final String TROPOPASSWORD = System.getenv("TROPOPASSWORD");
 	
 	
 
@@ -103,7 +103,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, String>
 	
 		// if the username is already in use we want to tell this application
 		if ( null != desiredUsername )  { 
-			TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAMEFORAPIREQUEST, TROPOPASSWORDFORAPIREQUEST, ll, "https://api.tropo.com/v1/users/");
+			TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAME, TROPOPASSWORD, ll, "https://api.tropo.com/v1/users/");
 			
 			int n = 0;
 			

@@ -49,9 +49,9 @@ URL=http%3A%2F%2Fwww.cisco.com
  *  00N6100000BT0HY -> 'Solution Description'
  *  00N6100000HSuwW=1
  *  00N6100000HSuwR -> 'Desired Username'
- *  00N6100000HSuwQ=kdjdjkdkjdkjk
+ *  00N6100000HSuwQ=Tropo Developer Account
  *  00N6100000HSuwP -> 'Solution URL'
- *  00N6100000HSuwO=test%40test.io
+ *  00N6100000HSuwO=Spark Developer Account
  */
 
 public class ConvertInputFieldsToSmartSheetColumns {
@@ -88,6 +88,5 @@ public class ConvertInputFieldsToSmartSheetColumns {
 		String mappedValue = fieldMapping.get(formField);
 		ll.log("Mapped value " + formField + " to " +( (mappedValue!=null)?mappedValue:"?"));
 		return mappedValue;
-		// return ( (null!=mappedValue)?mappedValue: formField);
 	}
 }

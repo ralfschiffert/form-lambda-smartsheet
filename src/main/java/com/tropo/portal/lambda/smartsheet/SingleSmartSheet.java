@@ -97,12 +97,12 @@ public class SingleSmartSheet {
 		}	
 	}
 	
+	
 	public Optional<Sheet> getSheetRepresentation() {
 		checkIfSmartSheetInitialized();
 		
 		return Optional.ofNullable(smartsheetNative);
 	}
-
 
 
 	// the LONG is the Column ID if the column Exists - this seems to be the correct way to use the Optional 
@@ -294,7 +294,6 @@ public class SingleSmartSheet {
 		
 		return Optional.ofNullable(found);
 	}
-	
 	
 	
 	

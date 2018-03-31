@@ -7,12 +7,17 @@ import java.util.Map;
 import java.util.stream.*;
 import java.io.UnsupportedEncodingException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 
 public class ConvertInputFieldsToSmartSheetColumnsTest {
+	
+	private static String ACCESSTOKEN = null;
+	private static String SHEETID = null;
+	
 	
 	private String decode(String s) {
 		
@@ -24,7 +29,16 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 		}
 		return converted;
 	}
-
+	
+	
+	@BeforeClass
+	public static void getEnv() {
+		ConvertInputFieldsToSmartSheetColumnsTest.ACCESSTOKEN = System.getenv("SMARTSHEETACCESSTOKEN");
+		System.out.println(ACCESSTOKEN);
+	
+		ConvertInputFieldsToSmartSheetColumnsTest.SHEETID = System.getenv("SMARTSHEETSHEETID");
+		System.out.println(SHEETID);
+	}
 
 	@Test
 	public void convertFormFieldsToSmartSheetColumnsTest() {	
@@ -67,11 +81,11 @@ public class ConvertInputFieldsToSmartSheetColumnsTest {
 	
 		TestContext context = new TestContext();
 		// TODO: customize your context here if needed.
-		context.setFunctionName("Your Function Name");
+		context.setFunctionName("Your testThatFormFieldsMapToColumnsInSmartSheet Name");
 		LambdaLogger ll = context.getLogger();
 		
 		SingleSmartSheet sss = new SingleSmartSheet(context);
-		sss.init(SingleSmartSheetTest.ACCESSTOKEN, SingleSmartSheetTest.SHEETID); // column mapping is part of the init
+		sss.init(ACCESSTOKEN, SHEETID); // column mapping is part of the init
 		
 		assertFalse("column name check doesn't work", sss.doesColumnExist("ESELSOHR").isPresent());
 		assertTrue("column name check doesn't work", sss.doesColumnExist("Company Name").isPresent());
