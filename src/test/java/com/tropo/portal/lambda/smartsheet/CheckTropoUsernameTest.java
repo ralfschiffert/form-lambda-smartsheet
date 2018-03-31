@@ -2,8 +2,6 @@ package com.tropo.portal.lambda.smartsheet;
 
 import static org.junit.Assert.*;
 
-import java.net.MalformedURLException;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 

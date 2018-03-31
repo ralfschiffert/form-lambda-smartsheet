@@ -9,6 +9,7 @@ import com.smartsheet.api.models.Column;
 import com.smartsheet.api.models.Row;
 import com.smartsheet.api.models.Sheet;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -26,22 +27,16 @@ public class SingleSmartSheet {
 	// the following fields should be set if the init==true
 	private boolean initSuccess = false;
 	private  Long sheetId = null;
-	private Map<String, Long> columnMap = new HashMap<String, Long>();
+	private Map<String, Long> columnMap = new HashMap<>();
 	private Smartsheet client = null;
 	private Sheet smartsheetNative = null;
 	private String primaryColumnName = null;	
 	private Long primaryColumnId = -1L;
 	
 	// the following fields will be set as the program progresses
-	private List<Row> rowContainer = new ArrayList<Row>();
-	private List<Row> lastInserted = new ArrayList<Row>();
-	
+	private List<Row> rowContainer = new ArrayList<>();
+	private List<Row> lastInserted = new ArrayList<>();
 
-	/*static {
-        // These lines enable logging to the console
-        System.setProperty("Smartsheet.trace.parts", "RequestBodySummary,ResponseBodySummary");
-        System.setProperty("Smartsheet.trace.pretty", "true");
-	} */
 
 	// default parameter-free constructor
 	public SingleSmartSheet(Context ctx)  {
@@ -78,7 +73,7 @@ public class SingleSmartSheet {
 		ll.log("smartsheet constructor called");
 		
 		this.enforceUniquePrimaryKey = enforceUniquePrimaryKey;
-		ll.log("object enforces primary key uniqueness " + ((true==enforceUniquePrimaryKey)?"yes":"no" ));
+		ll.log("object enforces primary key uniqueness " + ((enforceUniquePrimaryKey)?"yes":"no" ));
 	}
 
 	
@@ -112,9 +107,7 @@ public class SingleSmartSheet {
 		checkIfSmartSheetInitialized();
 
 		ll.log("Checking for column " + columnName);
-		Optional<Long> l = Optional.ofNullable(columnMap.get(columnName));
-
-		return l;
+		return  Optional.ofNullable(columnMap.get(columnName));
 	}
 	
 	
@@ -145,7 +138,7 @@ public class SingleSmartSheet {
 
 	// receives info about the sheet to read and the access token
 	// checks for sheet accessibility and if accessible maps the column id's to the column names
-	public SingleSmartSheet init( String token, String sheetId ) throws IllegalArgumentException, IllegalStateException {
+	public SingleSmartSheet init( String token, String sheetId ) {
 
 		if ( ! passPrecondition(token) ) {
 			ll.log("no access token provided or access token empty");
@@ -212,10 +205,15 @@ public class SingleSmartSheet {
 			}
 			
 			columnMap = columns.stream().collect(Collectors.toMap(Column::getTitle,Column::getId));
-			Column primaryColumn = columns.stream().filter( (e) -> null!=e.getPrimary()).findFirst().orElse(null);
+			Column primaryColumn = columns.stream().filter( e-> null!=e.getPrimary()).findFirst().orElse(null);
+			
+			if ( null == primaryColumn ) {
+				throw new IllegalArgumentException("Could not identify the primary column. Maybe wrong sheet");
+			}
 			
 			primaryColumnName = primaryColumn.getTitle();
 			primaryColumnId = primaryColumn.getId();
+		
 		} // end synchronized block
 
 		ll.log(columnMap.toString());
@@ -266,7 +264,7 @@ public class SingleSmartSheet {
 
 
 	// Helper function to find cell in a row
-	private Optional<Cell> getCellByColumnName(Row row, String columnName) throws IllegalArgumentException {
+	private Optional<Cell> getCellByColumnName(Row row, String columnName)  {
 		checkIfSmartSheetInitialized();
 
 		// receive a row and a columnName and return the right cell
@@ -296,18 +294,15 @@ public class SingleSmartSheet {
 	}
 	
 	
-	
-	private Optional<String> getCellValueByColumnName(Row r, String columnName)  {
-			
-			Optional<Cell> c = getCellByColumnName(r, columnName);
-			
-			if ( c.isPresent() ) {
-					String s = ( c.get().getDisplayValue() != null)?c.get().getDisplayValue():(String)c.get().getValue();
-					return Optional.of(s);
-			}
-			
-			return Optional.empty();
-	}
+	public  Optional<String> getCellValueByColumnName(Row r, String columnName)  {
+		Optional<Cell> c = getCellByColumnName(r, columnName);
+		
+		if ( c.isPresent() ) {
+				String s = ( c.get().getDisplayValue() != null)?c.get().getDisplayValue():(String)c.get().getValue();
+				return Optional.of(s);
+		}
+		return Optional.empty();
+}
 
 
 // I tried with Optional<List<Cell>> first, but it gets too unwieldy and there is little  purpose anyways
@@ -318,27 +313,25 @@ public class SingleSmartSheet {
 
 		if ( ! passPrecondition(data) ) {
 			ll.log("source data has problems. Shamelessly avoiding to build List of cells");
-			return null;
+			return new ArrayList<>();
 		}
 
 		// we get data in the form of a map with <columnHeader, value>
-		List<Cell> list = new ArrayList<Cell>();
+		List<Cell> list = new ArrayList<>();
 
 		// iterate over the data
-		for ( String key : data.keySet() ) {
+		for ( Entry<String,String> entry : data.entrySet() ) {
 			Cell cell = new Cell();
-
 			 
-			if ( ! doesColumnExist(key).isPresent() ) {
-				ll.log("Could not find the columnID for key " + key);
+			if ( ! doesColumnExist(entry.getKey()).isPresent() ) {
+				ll.log("Could not find the columnID for key " + entry.getKey());
 				ll.log("Will skip over it");
-				cell = null;
 				continue;
-			}
+			} else {
 
-			cell.setColumnId(doesColumnExist(key).get());
+			cell.setColumnId(doesColumnExist(entry.getKey()).get());
 			cell.setStrict(false);
-			String s = data.get(key);
+			String s = entry.getValue();
 			if ( null !=s && s.length() > maxCellEntrySize) {
 				ll.log( "Size of data input " + s + " exceeds allowed max value of " + maxCellEntrySize);
 				ll.log("Will truncate entry");
@@ -351,13 +344,13 @@ public class SingleSmartSheet {
 			cell.setValue(s);
 			list.add( cell);
 			}
-			cell = null;
+			}
 		}
 
 		if  (! passPrecondition(list) ) {
 			ll.log("Could not build list of cells from data");
 			ll.log("Data is " + data.toString());
-			return null;
+			return new ArrayList<>();
 		}
 		ll.log("Successfully built a list of cells from the data map");
 		return list;
@@ -379,11 +372,11 @@ public class SingleSmartSheet {
 
 		checkIfSmartSheetInitialized();
 
-		if ( enforceUniquePrimaryKey ) {
-			if ( primaryKeyConflict(data)) return Optional.empty();
+		if ( enforceUniquePrimaryKey &&  primaryKeyConflict(data)) {
+			return Optional.empty();
 		}
 		
-		if (  null != buildListOfCellsFromDataMap(data) ) {
+		if (  ! buildListOfCellsFromDataMap(data).isEmpty() ) {
 			Row r = new Row();
 			r.setToTop(true); // we insert rows at the top
 			r.setCells(buildListOfCellsFromDataMap(data));
@@ -436,7 +429,8 @@ public class SingleSmartSheet {
 
 		checkIfSmartSheetInitialized() ;
 		int rowsDeleted = 0;
-		Set<Long> rowIds = new HashSet<Long>(lastInserted.stream().map((e) -> e.getId()).collect(Collectors.toList()));
+	
+		Set<Long> rowIds = new HashSet<>(lastInserted.stream().map(Row::getId).collect(Collectors.toList()));
 		ll.log("About to delete " + rowIds.size() + " rows");
 
 		try {
@@ -468,7 +462,7 @@ public class SingleSmartSheet {
 
 		// there may very well be a case where we get passed an empty row list 
 		// the right thing to do is to say, no! your element is not here
-		if ( 0 == input.size()) {
+		if ( input.isEmpty()) {
 			return false;
 		}
 
@@ -546,10 +540,16 @@ public class SingleSmartSheet {
 	public boolean primaryKeyConflict( Map<String, String> sourceData) {
 
 		// find the primary keys value first from the data set
-		Map.Entry<String, String> entry = sourceData.entrySet().stream().filter( (e) -> e.getKey().equals(primaryColumnName)).findFirst().orElse(null);
+		Map.Entry<String, String> entry = sourceData.entrySet().stream().filter( e -> e.getKey().equals(primaryColumnName)).findFirst().orElse(null);
 
 		// we need to check if this key was already used in the smartsheet
-		return (primaryKeyUsed(entry.getValue()));
+		if ( null != entry ) {
+			return (primaryKeyUsed(entry.getValue()));
+		}
+		
+		//if the source data doesn't have a primary key we have to say it's not present
+		//not sure about this being the right approach
+		return false;
 	}
 	
 }

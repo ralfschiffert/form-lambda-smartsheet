@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.lang.reflect.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,18 +142,10 @@ public class SingleSmartSheetTest {
 		Row r =  sss.readyRowForInsertion(testData(true)).get();
 		assertNotNull("couldn't build the row from test data", r);
 		assertTrue("rowContainer does not contain 1 row", 1==sss.getNofRowsReadyToInsert());
-		try {
-			Method getCellMethod = sss.getClass().getDeclaredMethod("getCellValueByColumnName",Row.class,String.class);
-			getCellMethod.setAccessible(true);
-			Optional<String> s =  (Optional<String>)getCellMethod.invoke(sss, r, "Person Lastname");
-			assertTrue("couldn't get the Person Lastname cell from the test data set", s.isPresent());
-			assertTrue("Person Lastname contained the wrong value", "K".equals(s.get()));
-		}
-		catch ( Exception e) {
-			assertTrue("issue with the reflection access", false);
-		}
+		Optional<String> s = sss.getCellValueByColumnName(r, "Person Lastname");
+		assertTrue("couldn't get the Person Lastname cell from the test data set", s.isPresent());
+		assertTrue("Person Lastname contained the wrong value", "K".equals(s.get()));
 		assertTrue("could not empty the cache container", 1==sss.clearRowCacheContainer());
-
 	}
 
 

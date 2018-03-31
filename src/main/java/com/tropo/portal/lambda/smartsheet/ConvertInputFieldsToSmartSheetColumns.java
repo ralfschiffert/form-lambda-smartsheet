@@ -1,9 +1,7 @@
 package com.tropo.portal.lambda.smartsheet;
 
 import java.util.Map;
-
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
-
 import java.util.HashMap;
 
 // this is a sample response from the form submission
@@ -56,7 +54,9 @@ URL=http%3A%2F%2Fwww.cisco.com
 
 public class ConvertInputFieldsToSmartSheetColumns {
 	
-	private static Map<String, String> fieldMapping = new HashMap<String, String>();
+	private ConvertInputFieldsToSmartSheetColumns() {}
+	
+	private static Map<String, String> fieldMapping = new HashMap<>();
 	
 	static {
 		fieldMapping.put("URL", "Company Website");

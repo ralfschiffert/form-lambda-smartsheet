@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.smartsheet.api.models.Email;
 
 /**
  * A simple test harness for locally invoking your Lambda function handler.
