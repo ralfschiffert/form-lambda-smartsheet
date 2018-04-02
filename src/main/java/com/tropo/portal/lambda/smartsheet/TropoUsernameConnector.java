@@ -28,12 +28,12 @@ public class TropoUsernameConnector {
 		this.requestPass = requestPass;
 		this.ll = ll;
 		this.baseUrl = baseUrl;
-	}
-
-	public Integer checkUserName(String tropoUserName)  {
 		
 		Authenticator.setDefault(new MyAuthenticator());
+	}
 
+	public Integer getResponseCode(String tropoUserName)  {
+	
 		int returnCode = 0;
 		
 		try {
@@ -46,10 +46,10 @@ public class TropoUsernameConnector {
 		} catch (MalformedURLException e) {
 			// there is little value in exposing this one
 			ll.log("Malformed URL: " + e.getMessage());
-			returnCode = 0;
+			returnCode = -1;
 		} catch (IOException e) {
 			ll.log("I/O Error: " + e.getMessage());
-			returnCode = 0;
+			returnCode = -1;
 		}
 	
 		return returnCode;

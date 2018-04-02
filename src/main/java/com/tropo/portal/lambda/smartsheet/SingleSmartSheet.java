@@ -157,20 +157,14 @@ public class SingleSmartSheet {
 
 		// Initialize client - throws an exception if we cannot use this token
 		synchronized (this) {
-			try {
-				client = new SmartsheetBuilder().setAccessToken(accessToken).build();
+			// client builder seems to ignore the validity of the token
+			// it's just a client side thing it seems
+			client = new SmartsheetBuilder().setAccessToken(accessToken).build();
 
-				if ( null == client ) {
-					ll.log("Could not get SDK client to access smartsheet");
-					throw new IllegalStateException("Could not get SDK client to access smartsheet");
-				}
-			}
-			catch ( IllegalStateException e ) {
-				ll.log("Could not connect to the smartsheet. Likely access token invalid or not set at all. Giving up.");
-				ll.log(e.getMessage());
+			if ( null == client ) {
+				ll.log("Could not cosntruct SDK client");
 				initSuccess = false;
-				client = null;
-				throw e;
+				throw new IllegalStateException("Could not construct client obkect from SDK");
 			}
 
 			// in the init we also want to map the ColumnID's to ColumnNames
@@ -181,14 +175,14 @@ public class SingleSmartSheet {
 					// not sure if we want to throw an exception here
 					// then again this is not a general purpose library and we need the smartsheet
 					initSuccess = false;
-					throw new IllegalStateException("Couldn't get the sheet sheetid " + this.sheetId);
+					throw new IllegalStateException("Could not get the sheet via the client SDK");
 				}
 			}
 			catch ( SmartsheetException e ) {
 				ll.log("Could not get to sheet with sheetID  " + sheetId);
 				ll.log("Could be sheetID or AccessToken. Will have to give up");
 				initSuccess = false;
-				throw new IllegalStateException("Couldn't get the sheet sheetid " + this.sheetId);
+				throw new IllegalStateException("Couldn't get the sheet. Could be token, network or sheetID:" + this.sheetId);
 			}
 
 			ll.log("Loaded sversion " + smartsheetNative.getVersion() + " with " + smartsheetNative.getRows().size() + " rows from sheet: " + smartsheetNative.getName());

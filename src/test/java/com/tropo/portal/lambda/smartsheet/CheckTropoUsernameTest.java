@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.hamcrest.CoreMatchers.*;
 
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 
@@ -25,23 +26,27 @@ public class CheckTropoUsernameTest {
 	}
 
 	@Test
-	public void RetrievalOfUsernameTest() {
-
+	public void checkAvailableUsername() {
 		TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAME, TROPOPASSWORD, ll,"https://api.tropo.com/v1/users/");
 
-		assertNotNull("Could not instantiate the tropo api connector",  u);
-		assertTrue("wrong API response for non-existent username", 404 == u.checkUserName("93i34ridjddijjskjss9w999393d"));
-		assertTrue("wrong API response for existing username", 403 == u.checkUserName("sanparik"));
-
-
+		assertThat("could not get the Authenticator to work to access url with basic auth", u, is(notNullValue())); 
+		assertThat(u.getResponseCode("93i34ridjddijjskjss9w999393d"),equalTo(404));
 	}
 
-
+	
 	@Test
-	public void checkUrlException() {
-		TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAME, TROPOPASSWORD, ll,"httpsapi.tropo.com/v1/users/");
-		assertTrue("wrong API response for non-existent username", 0 == u.checkUserName("93i34ridjddijjskjss9w999393"));
+	public void checkUnavailableUsername() {
+		TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAME, TROPOPASSWORD, ll,"https://api.tropo.com/v1/users/");
 
+		assertThat("could not get the Authenticator to work to access url with basic auth", u, is(notNullValue())); 
+		assertThat(u.getResponseCode("sanparik"), equalTo(403));
 	}
-
+	
+	
+	@Test
+	public void checkNegativeReturnValueForMalformedURL() {
+		TropoUsernameConnector u = new TropoUsernameConnector(TROPOUSERNAME, TROPOPASSWORD, ll,"httpsapi.tropo.com/v1/users/");
+		
+		assertThat( u.getResponseCode("sanparik"), equalTo(-1));
+		}
 }

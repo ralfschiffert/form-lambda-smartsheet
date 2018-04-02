@@ -74,7 +74,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, String>
 
 			int n = 0;
 
-			if ( 404 != ( n= u.checkUserName(desiredUsername))) {
+			if ( 404 != ( n= u.getResponseCode(desiredUsername))) {
 				ll.log("Username lookup returned " + n);
 				return String.format(retErrorHTML, "The username " + desiredUsername + " is already in use.", "https://www.tropo.com/portal/register", retUrl, "5");
 			}
