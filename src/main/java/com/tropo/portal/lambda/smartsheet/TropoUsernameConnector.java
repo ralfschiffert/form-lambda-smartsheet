@@ -22,6 +22,7 @@ public class TropoUsernameConnector {
 	private String requestPass;
 	private LambdaLogger ll;
 	private String baseUrl;
+	private HttpURLConnection connection;
 
 	public TropoUsernameConnector(String requestUser, String requestPass, LambdaLogger ll, String baseUrl) {
 		this.requestUser = requestUser;
@@ -34,11 +35,12 @@ public class TropoUsernameConnector {
 
 	public Integer getResponseCode(String tropoUserName)  {
 	
+		
 		int returnCode = 0;
 		
 		try {
 			URL url = new URL(baseUrl + tropoUserName);
-			HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+			connection = (HttpURLConnection)url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.connect();
 			returnCode = connection.getResponseCode();

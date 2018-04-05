@@ -22,7 +22,6 @@ public class CheckTropoUsernameTest {
 
 		TROPOUSERNAME =System.getenv("TROPOUSERNAME");
 		TROPOPASSWORD = System.getenv("TROPOPASSWORD");
-
 	}
 
 	@Test
