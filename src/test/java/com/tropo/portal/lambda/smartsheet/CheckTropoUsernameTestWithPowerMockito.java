@@ -20,7 +20,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(fullyQualifiedNames = "com.tropo.portal.lambda.smartsheet.TropoUsernameConnector")
-public class CheckTropoUsernameTestWithMockito {
+public class CheckTropoUsernameTestWithPowerMockito {
 	
 	private static String TROPOUSERNAME=null,TROPOPASSWORD=null;
 	private static LambdaLogger ll;
