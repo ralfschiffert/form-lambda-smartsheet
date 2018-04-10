@@ -1,26 +1,26 @@
 package com.tropo.portal.lambda.smartsheet;
 
 //Add Maven library "com.smartsheet:smartsheet-sdk-java:2.2.3" to access Smartsheet Java SDK
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.smartsheet.api.Smartsheet;
-import com.smartsheet.api.SmartsheetException;
 import com.smartsheet.api.SmartsheetBuilder;
+import com.smartsheet.api.SmartsheetException;
 import com.smartsheet.api.models.Cell;
 import com.smartsheet.api.models.Column;
 import com.smartsheet.api.models.Row;
 import com.smartsheet.api.models.Sheet;
+
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import com.amazonaws.services.lambda.runtime.Context;
 
 public class SingleSmartSheet {
 
 	// the following should be set even if the init is not true yet
 	private String accessToken = null;
 	private Context context = null;
-	private LambdaLogger ll = null;
+	private static LambdaLogger ll = null;
 	private boolean enforceUniquePrimaryKey = false; // this still can be enforced from the outside
 	
 	
@@ -37,6 +37,8 @@ public class SingleSmartSheet {
 	private List<Row> rowContainer = new ArrayList<>();
 	private List<Row> lastInserted = new ArrayList<>();
 
+	private SmartsheetBuilder builder = new SmartsheetBuilder();
+
 
 	// default parameter-free constructor
 	public SingleSmartSheet(Context ctx)  {
@@ -46,18 +48,24 @@ public class SingleSmartSheet {
 		ll = context.getLogger();
 		ll.log("smartsheet constructor called");
 	}
+
+
+	public boolean isConnected() {
+	    return initSuccess;
+    }
 	
 
 	// false for null objects and empty Strings - true otherwise
-	private boolean passPrecondition( Object o ) {
+	// we relabelled this to protected since we want to test it
+	public static boolean passPrecondition( Object o ) {
 		if ( null == o ) { 
-			ll.log("received a null value for a parameter most likely");
+			// ll.log("received a null value for a parameter most likely");
 			return false;
 		} else if ( o instanceof String && o.toString().isEmpty() ) {
-				ll.log("received an empty string as input");
-				return false;
+			// ll.log("received an empty string as input");
+			return false;
 		} else if ( o instanceof Collection && ((Collection) o).isEmpty()) {
-			ll.log("received an empty collection as input where we didn't expect one");
+			// ll.log("received an empty collection as input where we didn't expect one");
 			return false;
 		} 
 		
@@ -77,7 +85,7 @@ public class SingleSmartSheet {
 	}
 
 	
-	private void checkIfSmartSheetInitialized() {
+	protected void checkIfSmartSheetInitialized() {
 		if ( !initSuccess ) {
 			ll.log("Not successfully initialized before trying to access sheet");
 			ll.log("We will try to init it again");
@@ -159,7 +167,7 @@ public class SingleSmartSheet {
 		synchronized (this) {
 			// client builder seems to ignore the validity of the token
 			// it's just a client side thing it seems
-			client = new SmartsheetBuilder().setAccessToken(accessToken).build();
+			client = builder.setAccessToken(accessToken).build();
 
 			if ( null == client ) {
 				ll.log("Could not cosntruct SDK client");
@@ -199,7 +207,7 @@ public class SingleSmartSheet {
 			}
 			
 			columnMap = columns.stream().collect(Collectors.toMap(Column::getTitle,Column::getId));
-			Column primaryColumn = columns.stream().filter( e-> null!=e.getPrimary()).findFirst().orElse(null);
+			Column primaryColumn = columns.stream().filter( e -> null!=e.getPrimary()).findFirst().orElse(null);
 			
 			if ( null == primaryColumn ) {
 				throw new IllegalArgumentException("Could not identify the primary column. Maybe wrong sheet");
