@@ -20,7 +20,7 @@ public class SingleSmartSheet {
 	// the following should be set even if the init is not true yet
 	private String accessToken = null;
 	private Context context = null;
-	private static LambdaLogger ll = null;
+	private LambdaLogger ll = null;
 	private boolean enforceUniquePrimaryKey = false; // this still can be enforced from the outside
 	
 	
@@ -48,6 +48,18 @@ public class SingleSmartSheet {
 		ll = context.getLogger();
 		ll.log("smartsheet constructor called");
 	}
+	
+	// in this version the object itself takes care not to insert duplicate primary keys
+	public SingleSmartSheet(Context ctx, boolean enforceUniquePrimaryKey ) {
+			
+		this.context = ctx;
+		// we should get a logger so we can do some diagnostics 		
+		ll = context.getLogger();
+		ll.log("smartsheet constructor called");
+			
+		this.enforceUniquePrimaryKey = enforceUniquePrimaryKey;
+		ll.log("object enforces primary key uniqueness " + ((enforceUniquePrimaryKey)?"yes":"no" ));
+	}
 
 
 	public boolean isConnected() {
@@ -58,30 +70,11 @@ public class SingleSmartSheet {
 	// false for null objects and empty Strings - true otherwise
 	// we relabelled this to protected since we want to test it
 	public static boolean passPrecondition( Object o ) {
-		if ( null == o ) { 
-			// ll.log("received a null value for a parameter most likely");
-			return false;
-		} else if ( o instanceof String && o.toString().isEmpty() ) {
-			// ll.log("received an empty string as input");
-			return false;
-		} else if ( o instanceof Collection && ((Collection) o).isEmpty()) {
-			// ll.log("received an empty collection as input where we didn't expect one");
+		if ( null == o || (o instanceof String && o.toString().isEmpty()) ||  (o instanceof Collection && ((Collection) o).isEmpty()))  { 
 			return false;
 		} 
 		
 		return true;
-	}
-	
-	// in this version the object itself takes care not to insert duplicate primary keys
-	public SingleSmartSheet(Context ctx, boolean enforceUniquePrimaryKey ) {
-		
-		this.context = ctx;
-		// we should get a logger so we can do some diagnostics 		
-		ll = context.getLogger();
-		ll.log("smartsheet constructor called");
-		
-		this.enforceUniquePrimaryKey = enforceUniquePrimaryKey;
-		ll.log("object enforces primary key uniqueness " + ((enforceUniquePrimaryKey)?"yes":"no" ));
 	}
 
 	
