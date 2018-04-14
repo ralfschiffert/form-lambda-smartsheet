@@ -5,7 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 import com.amazonaws.services.lambda.runtime.Context;
 
@@ -15,6 +20,10 @@ import com.amazonaws.services.lambda.runtime.Context;
 public class LambdaFunctionHandlerTest {
 
     private static Object input;
+    
+    
+    @Rule
+    public ExpectedException grabber = ExpectedException.none();
 
     @Before
     public void createInput() throws IOException {
@@ -27,6 +36,13 @@ public class LambdaFunctionHandlerTest {
         // TODO: customize your context here if needed.
         ctx.setFunctionName("Your Function Name");
         return ctx;
+    }
+    
+    @Test
+    public void returnErrorWhenSmartsheetCouldNotBeInitialized() {
+	grabber.expect(IllegalArgumentException.class);
+	LambdaFunctionHandler lfh = new LambdaFunctionHandler();
+	assertThat(lfh.handleRequest(new HashMap<String, String>(), createContext()), equalTo("<!DOCTYPE html><html><head><title>Something went wrong</title></head><body><h1>Form Received with Errors</h1>There were some issues</br />We apologize for this, but experienced some server side error. Please try again later <br />If your browser does not support redirects, please click <a href='https://www.tropo.com'>here</a><script type='text/javascript'> var website = 'https://www.tropo.com/thankyou', timer = '5';function delayer() {window.location=website}; setTimeout('delayer()', 1000 * timer);</script></body></html>"));
     }
 
     @Test

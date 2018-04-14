@@ -85,6 +85,7 @@ public class SingleSmartSheetTest {
 		assertThat("The init with the right credentials didn't work", sss.init(SMARTSHEETACCESSTOKEN, SMARTSHEETSHEETID), is(notNullValue()));
 	}
 	
+	
 
 	@Test
 	public void UnSuccessfulInitOfSmartSheetDueToWrongSheetId() {

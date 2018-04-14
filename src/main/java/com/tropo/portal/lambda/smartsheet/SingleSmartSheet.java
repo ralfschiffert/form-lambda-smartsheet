@@ -22,8 +22,7 @@ public class SingleSmartSheet {
 	private Context context = null;
 	private LambdaLogger ll = null;
 	private boolean enforceUniquePrimaryKey = false; // this still can be enforced from the outside
-	
-	
+
 	// the following fields should be set if the init==true
 	private boolean initSuccess = false;
 	private  Long sheetId = null;
@@ -64,17 +63,24 @@ public class SingleSmartSheet {
 
 	public boolean isConnected() {
 	    return initSuccess;
-    }
+	}
+	
+	
+	public boolean isEnforceUniquePrimaryKey() {
+	    return enforceUniquePrimaryKey;
+	}
 	
 
 	// false for null objects and empty Strings - true otherwise
 	// we relabelled this to protected since we want to test it
 	public static boolean passPrecondition( Object o ) {
+	       boolean usable = true;
+	       
 		if ( null == o || (o instanceof String && o.toString().isEmpty()) ||  (o instanceof Collection && ((Collection) o).isEmpty()))  { 
-			return false;
+		    usable =  false;
 		} 
 		
-		return true;
+		return usable;
 	}
 
 	
@@ -470,11 +476,16 @@ public class SingleSmartSheet {
 
 
 		for (Row row : input) {
+		  
+		    	// the null!= cell.getDisplayValue() is a little controversial
+		       // the entry in the PrimaryColumn should never be null
+		    	// however we call this here to prevent a duplicate primary key
+		    	/// so we just jog over it here
 			Cell c = row.getCells().stream()
-					.filter(cell -> (primaryColumnId.equals((Long) cell.getColumnId()) &&   cell.getDisplayValue().equalsIgnoreCase(value)))
+					.filter(cell -> (primaryColumnId.equals((Long)cell.getColumnId()) &&   null!=cell.getDisplayValue() && cell.getDisplayValue().equalsIgnoreCase(value)))
 					.findFirst()
 					.orElse(null);
-
+		  
 			if ( null !=c  ) {
 				ll.log("The Primary Key " + value + " already exists");
 				ll.log("We want to avoid duplicate primary keys");

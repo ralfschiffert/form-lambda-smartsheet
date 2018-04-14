@@ -2,27 +2,32 @@ package com.tropo.portal.lambda.smartsheet;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+
 import com.smartsheet.api.Smartsheet;
 import com.smartsheet.api.SmartsheetBuilder;
 import com.smartsheet.api.models.Column;
 import com.smartsheet.api.models.Sheet;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.mockito.Answers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.InjectMocks;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -44,13 +49,15 @@ public class SingleSmartSheetTestWithMockito {
     @Mock
     private Sheet sheet;
 
-
     @Mock ( answer = Answers.RETURNS_DEEP_STUBS )
     private SmartsheetBuilder builder;
 
 
     @InjectMocks
-    private SingleSmartSheet sss = new SingleSmartSheet(ctx);
+    private SingleSmartSheet sss = new SingleSmartSheet(ctx); // class that doesn't care about primary key duplication
+    
+    @InjectMocks
+    private SingleSmartSheet sssunique = new SingleSmartSheet(ctx, true); // class that forces unique primary key
 
 
     @BeforeClass
@@ -80,6 +87,25 @@ public class SingleSmartSheetTestWithMockito {
 
     @After
     public void tearDown() throws Exception {
+    }
+    
+    
+    @Test
+    public void setUniquePrimaryKeyFlagDisallowsDuplicateRows() throws Exception  {
+	// setup a mock builder
+        given(builder.setAccessToken( "1234" ).build()).willReturn( smartsheet );
+        // setup a mock smartsheet-client
+        given(smartsheet.sheetResources().getSheet(4321L, null, null, null, null, null, null, null)).willReturn(sheet);
+        // setup a mock sheet
+        given(sheet.getColumns()).willReturn(l);
+        given(sheet.getTotalRowCount()).willReturn(3);
+
+        // act
+        SingleSmartSheet s = sss.init("1234", "4321");
+        assertThat(sss.isConnected(), is(true));
+        assertThat(s, instanceOf(SingleSmartSheet.class));
+        assertThat(sss.getNofRowsInSmartSheet(), equalTo(3));
+        
     }
 
 

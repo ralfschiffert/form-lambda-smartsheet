@@ -2,6 +2,7 @@ package com.tropo.portal.lambda.smartsheet;
 
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.io.UnsupportedEncodingException;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -45,6 +46,11 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, String>
 
 	@Override
 	public String handleRequest(Map<String, String> m, Context context) {
+	    
+	       if ( null == m || m.isEmpty() ) {
+		   throw new IllegalArgumentException("empty request received");
+	       }
+	       
 		final String personEmailAsPrimaryKey = "Person Email";
 		// assign the lambda logger
 		ll = context.getLogger();
@@ -63,7 +69,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, String>
 		if ( null != desiredUsername ) {
 			desiredUsername = decode(desiredUsername);
 		} else {
-			desiredUsername = "tropoisv" + m.get("email").split("@")[0];
+			desiredUsername = ( (m.get("email")!=null)?"tropoisv"+m.get("email").split("@")[0]:null);
 		}
 
 
@@ -94,11 +100,16 @@ public class LambdaFunctionHandler implements RequestHandler<Map<String, String>
 		m.put("Approval Status", "Yellow");
 
 
-		SingleSmartSheet sss = new SingleSmartSheet(context).init(SMARTSHEETACCESSTOKEN,SMARTSHEETSHEETID);
-		if ( null == sss ) {
+		SingleSmartSheet sss = new SingleSmartSheet(context);
+		
+		try { 
+		    if ( null == sss.init(SMARTSHEETACCESSTOKEN,SMARTSHEETSHEETID) ) {
+			throw new IllegalStateException("could not connec to smartsheet server");
+		    }
+		} catch ( Exception e ) {
 			ll.log("Could not access smartsheet with the credentials provided");
 			 // format is 1. error message 2. manual click usually just tropo.com 3. redirect website 4. delay Timer
-			return String.format(retErrorHTML, "We apologize for this, but expeirenced some server side error. Please try again later", "https://www.tropo.com", retUrl, "5");
+			return String.format(retErrorHTML, "We apologize for this, but experienced some server side error. Please try again later", "https://www.tropo.com", retUrl, "5");
 		}
 
 
