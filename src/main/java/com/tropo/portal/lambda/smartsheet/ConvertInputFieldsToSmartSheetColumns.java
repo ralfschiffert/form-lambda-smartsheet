@@ -86,6 +86,9 @@ public class ConvertInputFieldsToSmartSheetColumns {
 	public static String getMappedField(String formField, LambdaLogger ll) {
 		// we assume if we cannot find the value we leave it as is
 		String mappedValue = fieldMapping.get(formField);
+		if ( null == mappedValue ) {
+		    mappedValue = formField;
+		}
 		ll.log("Mapped value " + formField + " to " +( (mappedValue!=null)?mappedValue:"?"));
 		return mappedValue;
 	}

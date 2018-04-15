@@ -13,7 +13,7 @@ public class CheckTropoUsernameTest {
 	static LambdaLogger ll = null;
 	static String TROPOUSERNAME = null;
 	static String TROPOPASSWORD = null;
-
+	
 	@BeforeClass
 	public static void createContext() {
 		TestContext context = new TestContext();

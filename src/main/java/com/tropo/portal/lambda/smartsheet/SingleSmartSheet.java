@@ -69,19 +69,6 @@ public class SingleSmartSheet {
 	public boolean isEnforceUniquePrimaryKey() {
 	    return enforceUniquePrimaryKey;
 	}
-	
-
-	// false for null objects and empty Strings - true otherwise
-	// we relabelled this to protected since we want to test it
-	public static boolean passPrecondition( Object o ) {
-	       boolean usable = true;
-	       
-		if ( null == o || (o instanceof String && o.toString().isEmpty()) ||  (o instanceof Collection && ((Collection) o).isEmpty()))  { 
-		    usable =  false;
-		} 
-		
-		return usable;
-	}
 
 	
 	protected void checkIfSmartSheetInitialized() {
@@ -133,7 +120,7 @@ public class SingleSmartSheet {
 		reloadSheet();
 	
 		// check for null pointer here
-		if (! passPrecondition(smartsheetNative )) {
+		if (CheckNullOrEmpty.isEmpty(smartsheetNative)) {
 			return -1;
 		}
 		
@@ -147,13 +134,13 @@ public class SingleSmartSheet {
 	// checks for sheet accessibility and if accessible maps the column id's to the column names
 	public SingleSmartSheet init( String token, String sheetId ) {
 
-		if ( ! passPrecondition(token) ) {
+		if (  CheckNullOrEmpty.isEmpty(token) ) {
 			ll.log("no access token provided or access token empty");
 			initSuccess = false;
 			throw new IllegalArgumentException("no access token provided or access token empty");
 		}
 
-		if ( ! passPrecondition(sheetId) ) {
+		if ( CheckNullOrEmpty.isEmpty(sheetId) ) {
 			ll.log("no sheetId provided or sheetId is empty");
 			initSuccess = false;
 			throw new IllegalArgumentException("no sheetId provided or sheetId is empty");
@@ -197,7 +184,7 @@ public class SingleSmartSheet {
 			// Build the column map for later reference
 			ll.log("Building map for column names and column ID's");
 			List<Column> columns = smartsheetNative.getColumns();
-			if ( ! passPrecondition(columns)) {
+			if ( CheckNullOrEmpty.isEmpty(columns)) {
 				// in this particular case we cannot work with empty sheets
 				// they need to have the columns already set for the rest of the program to work
 				ll.log("Could not get columns. Will have to give up");
@@ -269,12 +256,12 @@ public class SingleSmartSheet {
 		checkIfSmartSheetInitialized();
 
 		// receive a row and a columnName and return the right cell
-		if ( ! passPrecondition(columnName) ) { 
+		if (  CheckNullOrEmpty.isEmpty(columnName) ) { 
 			ll.log("No column name supplied in lookup");
 			return Optional.empty();
 		}
 
-		if ( ! passPrecondition(row) ) { 
+		if (  CheckNullOrEmpty.isEmpty(row) ) { 
 			ll.log("No column name supplied in lookup");
 			throw new IllegalArgumentException("row supplied was null");
 		}
@@ -312,7 +299,7 @@ public class SingleSmartSheet {
 
 		final int maxCellEntrySize = 2400;
 
-		if ( ! passPrecondition(data) ) {
+		if (  CheckNullOrEmpty.isEmpty(data) ) {
 			ll.log("source data has problems. Shamelessly avoiding to build List of cells");
 			return new ArrayList<>();
 		}
@@ -348,7 +335,7 @@ public class SingleSmartSheet {
 			}
 		}
 
-		if  (! passPrecondition(list) ) {
+		if  ( CheckNullOrEmpty.isEmpty(list) ) {
 			ll.log("Could not build list of cells from data");
 			ll.log("Data is " + data.toString());
 			return new ArrayList<>();
@@ -453,7 +440,7 @@ public class SingleSmartSheet {
 		checkIfSmartSheetInitialized();
 
 		// some basic checks upfront
-		if ( ! passPrecondition(value)) {
+		if ( CheckNullOrEmpty.isEmpty(value)) {
 			throw new IllegalArgumentException("Key to search for was null or empty");
 		}
 
@@ -469,7 +456,7 @@ public class SingleSmartSheet {
 
 		ll.log("Checking for the existence of the primary key " + value);
 
-		if ( !passPrecondition(primaryColumnName) ) {
+		if ( CheckNullOrEmpty.isEmpty(primaryColumnName) ) {
 			ll.log("Could not find the name of the primary column. Init may not have been called or wrong sheet");
 			throw new IllegalStateException("Could not find the name of the primary column. Init may not have been called or wrong sheet");
 		}
@@ -532,7 +519,7 @@ public class SingleSmartSheet {
 
 	public boolean primaryKeyUsed(String dataPrimaryKey) {
 
-		if ( !passPrecondition(dataPrimaryKey) ) {
+		if ( CheckNullOrEmpty.isEmpty(dataPrimaryKey) ) {
 			ll.log("Someone supplied an empty or null primary key to check for in the sheet");
 			return false;
 		}
