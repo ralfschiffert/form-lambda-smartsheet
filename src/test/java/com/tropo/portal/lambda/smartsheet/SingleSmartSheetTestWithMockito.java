@@ -114,8 +114,8 @@ public class SingleSmartSheetTestWithMockito {
         Object o1 = null;
         Object o2 = "this is a test";
 
-        assertThat(SingleSmartSheet.passPrecondition( o1 ), is(equalTo(false)));
-        assertThat(SingleSmartSheet.passPrecondition( o2 ), is(equalTo(true)));
+        assertThat(CheckNullOrEmpty.isEmpty( o1 ), is(equalTo(false)));
+        assertThat(CheckNullOrEmpty.isEmpty( o2 ), is(equalTo(true)));
     }
 
 
@@ -125,9 +125,9 @@ public class SingleSmartSheetTestWithMockito {
         String s2 = "";
         String s3 = "not empty";
 
-        assertThat(SingleSmartSheet.passPrecondition( s1), is(equalTo(false)));
-        assertThat(SingleSmartSheet.passPrecondition( s2 ), is(equalTo(false)));
-        assertThat(SingleSmartSheet.passPrecondition( s3 ), is(equalTo(true)));
+        assertThat(CheckNullOrEmpty.isEmpty( s1), is(equalTo(false)));
+        assertThat(CheckNullOrEmpty.isEmpty( s2 ), is(equalTo(false)));
+        assertThat(CheckNullOrEmpty.isEmpty( s3 ), is(equalTo(true)));
     }
 
 
@@ -139,9 +139,9 @@ public class SingleSmartSheetTestWithMockito {
         java.util.List c3= java.util.Arrays.asList( a );
 
 
-        assertThat(SingleSmartSheet.passPrecondition( c1), is(equalTo(false)));
-        assertThat(SingleSmartSheet.passPrecondition( c2 ), is(equalTo(false)));
-        assertThat(SingleSmartSheet.passPrecondition( c3 ), is(equalTo(true)));
+        assertThat(CheckNullOrEmpty.isEmpty( c1), is(equalTo(false)));
+        assertThat(CheckNullOrEmpty.isEmpty( c2 ), is(equalTo(false)));
+        assertThat(CheckNullOrEmpty.isEmpty( c3 ), is(equalTo(true)));
     }
 
 
@@ -185,68 +185,5 @@ public class SingleSmartSheetTestWithMockito {
         assertThat(sss.getSheetRepresentation().isPresent(), is(true));
         verify(builder.setAccessToken(anyString()), times(2)).build();
         verify(smartsheet.sheetResources(), times(2)).getSheet(anyLong(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
-    }
-
-
-
-
-
-
-
-
-    @Test
-    public void getSheetRepresentation() {
-    }
-
-    @Test
-    public void doesColumnExist() {
-    }
-
-    @Test
-    public void doesPrimaryColumnExist() {
-    }
-
-    @Test
-    public void getNofRowsInSmartSheet() {
-    }
-
-    @Test
-    public void init() {
-    }
-
-    @Test
-    public void reloadSheet() {
-    }
-
-    @Test
-    public void getCellValueByColumnName() {
-    }
-
-    @Test
-    public void getNofRowsReadyToInsert() {
-    }
-
-    @Test
-    public void readyRowForInsertion() {
-    }
-
-    @Test
-    public void clearRowCacheContainer() {
-    }
-
-    @Test
-    public void insertRowOrRows() {
-    }
-
-    @Test
-    public void deleteLastInserted() {
-    }
-
-    @Test
-    public void primaryKeyUsed() {
-    }
-
-    @Test
-    public void primaryKeyConflict() {
     }
 }
